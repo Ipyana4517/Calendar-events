@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Timetable Scheduler</title>
+    <title>The Edwins | Offline Smart Timetable Sync</title>
     
-    <!-- Load Tesseract.js for Images -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     
-    <!-- Load PDF.js for Documents -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
@@ -40,7 +38,6 @@
             min-height: 100vh;
         }
 
-        /* --- New Header Styles --- */
         .site-header {
             background-color: var(--dark-header);
             color: #ffffff;
@@ -75,7 +72,6 @@
             color: #cbd5e1;
         }
 
-        /* --- Main Content Layout --- */
         .main-content {
             flex: 1;
             width: 100%;
@@ -92,6 +88,28 @@
             border-radius: 0.75rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             margin-bottom: 1.5rem;
+        }
+
+        /* --- Mobile Responsive File Grid Fix --- */
+        .upload-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 640px) {
+            .upload-wrapper {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        .file-input-custom {
+            flex-grow: 1;
+            padding: 0.5rem;
+            border: 1px dashed #cbd5e1;
+            border-radius: 0.375rem;
+            background-color: #f8fafc;
         }
 
         .event-row {
@@ -125,15 +143,28 @@
 
         .checkbox-group { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
         button { cursor: pointer; padding: 0.625rem 1.25rem; border-radius: 0.375rem; font-weight: 500; border: none; }
-        .btn-primary { background: var(--primary); color: white; }
+        
+        .btn-primary { 
+            background: var(--primary); 
+            color: white;
+            width: 100%; 
+            padding: 0.75rem;
+        }
+        @media (min-width: 640px) {
+            .btn-primary {
+                width: auto;
+                padding: 0.625rem 1.25rem;
+            }
+        }
+        
         .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
         .btn-success { background: var(--secondary); color: white; width: 100%; font-size: 1.1rem; }
-        .btn-secondary { background: #e2e8f0; color: #334155; margin-bottom: 1rem; }
-        .hidden { display: none; }
+        .btn-secondary { background: #e2e8f0; color: #334155; margin-bottom: 1rem; width: 100%; }
+        @media (min-width: 640px) { .btn-secondary { width: auto; } }
         
+        .hidden { display: none; }
         #status { font-weight: 500; color: var(--primary); margin-top: 0.5rem; }
 
-        /* --- New Footer Styles --- */
         .site-footer {
             background-color: var(--dark-header);
             color: #94a3b8;
@@ -165,16 +196,13 @@
             .footer-top { flex-direction: row; }
         }
 
-        .footer-meta a {
-            color: #38bdf8;
-            text-decoration: none;
-        }
+        .footer-meta a { color: #38bdf8; text-decoration: none; }
         .footer-meta a:hover { text-decoration: underline; }
 
         .sponsors-section {
             display: flex;
             flex-wrap: wrap;
-            gap: 1.5rem;
+            gap: 1rem;
             justify-content: center;
             align-items: center;
         }
@@ -196,16 +224,11 @@
             font-weight: bold;
         }
 
-        .footer-bottom {
-            text-align: center;
-            font-size: 0.8rem;
-            color: #64748b;
-        }
+        .footer-bottom { text-align: center; font-size: 0.8rem; color: #64748b; }
     </style>
 </head>
 <body>
 
-    <!-- Dynamic Header Section -->
     <header class="site-header">
         <a href="#" class="site-logo">The Edwins</a>
         <div class="header-tag">Scheduler Engine v2.1</div>
@@ -214,9 +237,9 @@
     <main class="main-content">
         <div class="card">
             <h2>✨ Extract from Document or Image</h2>
-            <form id="uploadForm" style="display: flex; flex-direction: column; gap: 1rem;">
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <input type="file" id="timetableFile" accept=".pdf,.png,.jpg,.jpeg" style="flex-grow: 1;" required>
+            <form id="uploadForm">
+                <div class="upload-wrapper">
+                    <input type="file" id="timetableFile" class="file-input-custom" accept=".pdf,.png,.jpg,.jpeg" required>
                     <button type="submit" id="processBtn" class="btn-primary">Process File</button>
                 </div>
                 <div id="status"></div>
@@ -229,12 +252,11 @@
                 <div id="eventsContainer"></div>
 
                 <button type="button" class="button btn-secondary" id="addEventBtn">＋ Add Another Event</button>
-                <button type="submit" class="btn-success">Sync to calendar</button>
+                <button type="submit" class="btn-success">Generate Unified Calendar Sync (.ics)</button>
             </form>
         </div>
     </main>
 
-    <!-- Structured Footer Section -->
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-top">
@@ -331,65 +353,7 @@
             }
         }
 
-        createEventRow();
-        addEventBtn.addEventListener('click', () => createEventRow());
-
-        uploadForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const fileInput = document.getElementById('timetableFile');
-            if (!fileInput.files || fileInput.files.length === 0) return;
-
-            processBtn.disabled = true;
-            statusDiv.innerText = "Checking file format structure...";
-
-            try {
-                const file = fileInput.files[0];
-                
-                if (document.querySelectorAll('.event-row').length === 1 && 
-                    !document.querySelector('.field-title').value) {
-                    eventsContainer.innerHTML = '';
-                }
-
-                if (file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf')) {
-                    statusDiv.innerText = "Extracting layout text from PDF pages natively...";
-                    
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                    let combinedPdfText = "";
-                    
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        statusDiv.innerText = `Reading PDF page content: ${i} of ${pdf.numPages}...`;
-                        const page = await pdf.getPage(i);
-                        const textContent = await page.getTextContent();
-                        const pageText = textContent.items.map(item => item.str).join(" ");
-                        combinedPdfText += pageText + "\n";
-                    }
-                    
-                    parseTimetableTextAndPopulate(combinedPdfText);
-                    statusDiv.innerHTML = "✅ CELCAT Timetable read successfully! Verify days/times below.";
-                    
-                } else {
-                    statusDiv.innerText = "Initializing OCR Engine locally...";
-                    const result = await Tesseract.recognize(file, 'eng', {
-                        logger: m => {
-                            if (m.status === 'recognizing') {
-                                statusDiv.innerText = `Scanning pixels: ${Math.round(m.progress * 100)}%`;
-                            }
-                        }
-                    });
-                    
-                    parseTimetableTextAndPopulate(result.data.text);
-                    statusDiv.innerHTML = "✅ Image scanned successfully! Review your entries below.";
-                }
-
-            } catch (err) {
-                console.error(err);
-                statusDiv.innerText = "❌ Error analyzing layout structure locally.";
-            } finally {
-                processBtn.disabled = false;
-            }
-        });
-
+        // Generate dynamic entries for IAA CELCAT Structure
         function parseTimetableTextAndPopulate(rawText) {
             const standardizedText = rawText.replace(/\s+/g, ' ');
             const blockRegex = /Module:\s*(.*?)(?=Module:|$)/gi;
@@ -397,23 +361,31 @@
             const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
             const today = new Date();
 
+            // Explicit course block map to hold the accurate time intervals from IAA structure
+            const timeMap = {
+                "Security in Emerging Technologies": { start: "08:10", end: "10:20" },
+                "Ethical Hacking": { start: "08:10", end: "10:20" },
+                "ICT Project Management": { start: "08:10", end: "10:20" },
+                "Biometricks": { start: "08:10", end: "12:40" },
+                "Digital Forensics": { start: "11:40", end: "13:50" }
+            };
+
             if (matches.length > 0) {
                 matches.forEach(match => {
                     const blockContent = match[1];
                     
-                    if (blockContent.includes("Security in Emerging Technologies") && eventsContainer.innerHTML.includes("Emerging Technologies")) {
-                        return; 
-                    }
-
                     let titleMatch = blockContent.match(/^(.*?)(?=\[|\bRoom\b)/i);
                     let title = titleMatch ? titleMatch[1].trim() : "University Course";
                     title = title.replace(/\(Master\)/gi, '').trim();
 
-                    let roomMatch = blockContent.match(/Room:\s*([^\[]+)/i);
+                    if (eventsContainer.innerHTML.includes(title)) return;
+
+                    let roomMatch = blockContent.match(/Room:\s*([^\[\n]+)/i);
                     let room = roomMatch ? roomMatch[1].trim() : "Main Campus Hall";
+                    if(room.includes("Location")) room = room.split("Location")[0].trim();
 
                     const positionInRaw = standardizedText.indexOf(match[0]);
-                    const precedingText = standardizedText.substring(Math.max(0, positionInRaw - 150), positionInRaw);
+                    const precedingText = standardizedText.substring(Math.max(0, positionInRaw - 180), positionInRaw);
                     
                     let detectedDay = "Monday";
                     for (const day of daysOfWeek) {
@@ -432,14 +404,22 @@
                     eventDate.setDate(today.getDate() + daysToTarget);
                     const formattedDate = eventDate.toISOString().split('T')[0];
 
+                    let matchedTimes = { start: "08:10", end: "10:20" };
+                    for (let key in timeMap) {
+                        if (title.toLowerCase().includes(key.toLowerCase())) {
+                            matchedTimes = timeMap[key];
+                            break;
+                        }
+                    }
+
                     createEventRow({
                         title: title,
                         location: room,
                         isRecurring: true,
                         startDate: formattedDate,
                         endDate: "2026-06-30", 
-                        startTime: "08:10",    
-                        endTime: "10:20"       
+                        startTime: matchedTimes.start,    
+                        endTime: matchedTimes.end       
                     });
                 });
             } else {
@@ -454,7 +434,54 @@
             }
         }
 
+        createEventRow();
+        addEventBtn.addEventListener('click', () => createEventRow());
+
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('timetableFile');
+            if (!fileInput.files || fileInput.files.length === 0) return;
+
+            processBtn.disabled = true;
+            statusDiv.innerText = "Analyzing layout structure...";
+
+            try {
+                const file = fileInput.files[0];
+                if (document.querySelectorAll('.event-row').length === 1 && !document.querySelector('.field-title').value) {
+                    eventsContainer.innerHTML = '';
+                }
+
+                if (file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    let combinedPdfText = "";
+                    
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(" ");
+                        combinedPdfText += pageText + "\n";
+                    }
+                    parseTimetableTextAndPopulate(combinedPdfText);
+                    statusDiv.innerHTML = "✅ PDF timetable data read successfully! Review your entries below.";
+                } else {
+                    const result = await Tesseract.recognize(file, 'eng');
+                    parseTimetableTextAndPopulate(result.data.text);
+                    statusDiv.innerHTML = "✅ Image scanned successfully! Review your entries below.";
+                }
+            } catch (err) {
+                console.error(err);
+                statusDiv.innerText = "❌ Error analyzing file locally.";
+            } finally {
+                processBtn.disabled = false;
+            }
+        });
+
         function formatIcsDateTime(dateStr, timeStr) {
+            return dateStr.replace(/-/g, '') + 'T' + timeStr.replace(/:/g, '') + '00';
+        }
+
+        function formatGoogleDateTime(dateStr, timeStr) {
             return dateStr.replace(/-/g, '') + 'T' + timeStr.replace(/:/g, '') + '00';
         }
 
@@ -468,13 +495,9 @@
             e.preventDefault();
             const rows = document.querySelectorAll('.event-row');
             
-            let icsLines = [
-                "BEGIN:VCALENDAR",
-                "VERSION:2.0",
-                "PRODID:-//Static Client Side Calendar Sync//EN",
-                "CALSCALE:GREGORIAN"
-            ];
+            if (rows.length === 0) return;
 
+            let icsLines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//The Edwins//EN", "CALSCALE:GREGORIAN"];
             const nowTimestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
             rows.forEach(row => {
@@ -486,29 +509,24 @@
                 const startTime = row.querySelector('.field-startTime').value;
                 const endTime = row.querySelector('.field-endTime').value;
 
-                const dtStart = formatIcsDateTime(startDate, startTime);
-                const dtEnd = formatIcsDateTime(startDate, endTime);
-
                 icsLines.push("BEGIN:VEVENT");
                 icsLines.push(`SUMMARY:${title}`);
                 icsLines.push(`LOCATION:${location}`);
-                icsLines.push(`DTSTART:${dtStart}`);
-                icsLines.push(`DTEND:${dtEnd}`);
+                icsLines.push(`DTSTART:${formatIcsDateTime(startDate, startTime)}`);
+                icsLines.push(`DTEND:${formatIcsDateTime(startDate, endTime)}`);
                 icsLines.push(`DTSTAMP:${nowTimestamp}`);
-                icsLines.push(`UID:${Math.random().toString(36).substring(2, 11)}@clientocr`);
+                icsLines.push(`UID:${Math.random().toString(36).substring(2, 11)}@theedwins`);
 
                 if (isRecurring && endDate) {
-                    const untilStr = endDate.replace(/-/g, '') + 'T235959Z';
-                    const dayFlag = getDayOfWeekFlag(startDate);
-                    icsLines.push(`RRULE:FREQ=WEEKLY;UNTIL=${untilStr};BYDAY=${dayFlag}`);
+                    icsLines.push(`RRULE:FREQ=WEEKLY;UNTIL=${endDate.replace(/-/g, '')}T235959Z;BYDAY=${getDayOfWeekFlag(startDate)}`);
                 }
-
                 icsLines.push("END:VEVENT");
             });
 
             icsLines.push("END:VCALENDAR");
             const icsContent = icsLines.join("\r\n");
             
+            // Trigger download of standard physical .ics file
             const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -519,8 +537,31 @@
             URL.revokeObjectURL(url);
             a.remove();
 
+            // Attempt to force-push calendar opening protocol natively
             const base64Ics = btoa(unescape(encodeURIComponent(icsContent)));
             window.location.href = "webcal://data:text/calendar;base64," + base64Ics;
+
+            // Generate a One-Click Cloud Fallback Link using the first primary event structure
+            const firstRow = rows[0];
+            const gTitle = encodeURIComponent(firstRow.querySelector('.field-title').value);
+            const gLoc = encodeURIComponent(firstRow.querySelector('.field-location').value);
+            const gStart = formatGoogleDateTime(firstRow.querySelector('.field-startDate').value, firstRow.querySelector('.field-startTime').value);
+            const gEnd = formatGoogleDateTime(firstRow.querySelector('.field-startDate').value, firstRow.querySelector('.field-endTime').value);
+            
+            const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${gTitle}&dates=${gStart}/${gEnd}&details=Synced+via+The+Edwins&location=${gLoc}`;
+
+            // Inject the responsive one-click option into the screen UI status box
+            statusDiv.innerHTML = `
+                <div style="margin-top: 1rem; padding: 1.25rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 0.5rem; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <p style="margin: 0 0 0.75rem 0; color: #1e40af; font-size: 0.95rem; font-weight: 500;">Phone couldn't open the file automatically?</p>
+                    <a href="${googleCalendarUrl}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 0.65rem 1.2rem; text-decoration: none; border-radius: 0.375rem; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
+                        👉 One-Click Sync to Google Calendar
+                    </a>
+                </div>
+            `;
+            
+            // Scroll user cleanly to view the newly appeared action option card on mobile interfaces
+            statusDiv.scrollIntoView({ behavior: 'smooth' });
         });
     </script>
 </body>
