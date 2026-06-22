@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Timetable Sync</title>
+    <title>The Edwins | Semester Smart Timetable Sync</title>
     
+    <!-- Extraction Engines (OCR, PDF, Excel, Word Parsing) -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
     </script>
@@ -59,18 +61,8 @@
             gap: 0.5rem;
         }
 
-        .site-logo::before {
-            content: "⚡";
-            font-size: 1.2rem;
-        }
-
-        .header-tag {
-            font-size: 0.85rem;
-            background: rgba(255,255,255,0.1);
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            color: #cbd5e1;
-        }
+        .site-logo::before { content: "⚡"; font-size: 1.2rem; }
+        .header-tag { font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 0.25rem 0.75rem; border-radius: 1rem; color: #cbd5e1; }
 
         .main-content {
             flex: 1;
@@ -90,19 +82,12 @@
             margin-bottom: 1.5rem;
         }
 
-        /* --- Mobile Responsive File Grid Fix --- */
         .upload-wrapper {
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
-        
-        @media (min-width: 640px) {
-            .upload-wrapper {
-                flex-direction: row;
-                align-items: center;
-            }
-        }
+        @media (min-width: 640px) { .upload-wrapper { flex-direction: row; align-items: center; } }
 
         .file-input-custom {
             flex-grow: 1;
@@ -134,96 +119,35 @@
 
         .grid-2 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
         @media (min-width: 640px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+        
+        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 640px) { .grid-3 { grid-template-columns: 1fr 1fr 1fr; } }
 
         .form-group { margin-bottom: 0.75rem; }
         label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; color: #475569; }
-        input[type="text"], input[type="date"], input[type="time"] {
-            width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.375rem; box-sizing: border-box;
+        input[type="text"], input[type="date"], input[type="time"], select {
+            width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.375rem; box-sizing: border-box; background: white;
         }
 
-        .checkbox-group { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
         button { cursor: pointer; padding: 0.625rem 1.25rem; border-radius: 0.375rem; font-weight: 500; border: none; }
-        
-        .btn-primary { 
-            background: var(--primary); 
-            color: white;
-            width: 100%; 
-            padding: 0.75rem;
-        }
-        @media (min-width: 640px) {
-            .btn-primary {
-                width: auto;
-                padding: 0.625rem 1.25rem;
-            }
-        }
+        .btn-primary { background: var(--primary); color: white; width: 100%; padding: 0.75rem; }
+        @media (min-width: 640px) { .btn-primary { width: auto; padding: 0.625rem 1.25rem; } }
         
         .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-        .btn-success { background: var(--secondary); color: white; width: 100%; font-size: 1.1rem; }
+        .btn-success { background: var(--secondary); color: white; width: 100%; font-size: 1.1rem; padding: 0.75rem; }
         .btn-secondary { background: #e2e8f0; color: #334155; margin-bottom: 1rem; width: 100%; }
         @media (min-width: 640px) { .btn-secondary { width: auto; } }
         
-        .hidden { display: none; }
         #status { font-weight: 500; color: var(--primary); margin-top: 0.5rem; }
 
-        .site-footer {
-            background-color: var(--dark-header);
-            color: #94a3b8;
-            padding: 2rem 1rem;
-            margin-top: auto;
-            border-top: 1px solid #334155;
-            font-size: 0.9rem;
-        }
-
-        .footer-container {
-            max-width: 48rem;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .footer-top {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 1.5rem;
-        }
-
-        @media (min-width: 640px) {
-            .footer-top { flex-direction: row; }
-        }
-
+        .site-footer { background-color: var(--dark-header); color: #94a3b8; padding: 2rem 1rem; margin-top: auto; border-top: 1px solid #334155; font-size: 0.9rem; }
+        .footer-container { max-width: 48rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+        .footer-top { display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 1rem; border-bottom: 1px solid #334155; padding-bottom: 1.5rem; }
+        @media (min-width: 640px) { .footer-top { flex-direction: row; } }
         .footer-meta a { color: #38bdf8; text-decoration: none; }
-        .footer-meta a:hover { text-decoration: underline; }
-
-        .sponsors-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .sponsor-badge {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 0.35rem 0.75rem;
-            background: #1e293b;
-            border-radius: 0.25rem;
-            border: 1px solid #475569;
-            color: #cbd5e1;
-        }
-
-        .sponsor-badge.campaign {
-            border-color: #ef4444;
-            color: #fca5a5;
-            font-weight: bold;
-        }
-
+        .sponsors-section { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center; }
+        .sponsor-badge { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.35rem 0.75rem; background: #1e293b; border-radius: 0.25rem; border: 1px solid #475569; color: #cbd5e1; }
+        .sponsor-badge.campaign { border-color: #ef4444; color: #fca5a5; font-weight: bold; }
         .footer-bottom { text-align: center; font-size: 0.8rem; color: #64748b; }
     </style>
 </head>
@@ -231,28 +155,42 @@
 
     <header class="site-header">
         <a href="#" class="site-logo">The Edwins</a>
-        <div class="header-tag">Scheduler Engine v2.1</div>
+        <div class="header-tag">Scheduler v3.0</div>
     </header>
 
     <main class="main-content">
+        <!-- Range Global Bounds Setup -->
         <div class="card">
-            <h2>✨ Extract from Document or Image</h2>
+            <h2>📅 Semester Boundary</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Semester Start Date</label>
+                    <input type="date" id="semesterStart" required>
+                </div>
+                <div class="form-group">
+                    <label>Semester End Date</label>
+                    <input type="date" id="semesterEnd" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>✨ Import Document or Schedule Image</h2>
             <form id="uploadForm">
                 <div class="upload-wrapper">
-                    <input type="file" id="timetableFile" class="file-input-custom" accept=".pdf,.png,.jpg,.jpeg" required>
-                    <button type="submit" id="processBtn" class="btn-primary">Process File</button>
+                    <input type="file" id="timetableFile" class="file-input-custom" accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.docx" required>
+                    <button type="submit" id="processBtn" class="btn-primary">Extract Schedule</button>
                 </div>
                 <div id="status"></div>
             </form>
         </div>
 
         <div class="card">
-            <h2>✍️ Timetable Entries</h2>
+            <h2>✍️ Extracted Term Timeline</h2>
             <form id="masterEventForm">
                 <div id="eventsContainer"></div>
-
-                <button type="button" class="button btn-secondary" id="addEventBtn">＋ Add Another Event</button>
-                <button type="submit" class="btn-success"> Sync to Calendar</button>
+                <button type="button" class="button btn-secondary" id="addEventBtn">＋ Add Manual Class Slot</button>
+                <button type="submit" class="btn-success">Sync to Calendar</button>
             </form>
         </div>
     </main>
@@ -261,20 +199,16 @@
         <div class="footer-container">
             <div class="footer-top">
                 <div class="footer-meta">
-                    <strong>Support & Technical Inquiries:</strong><br>
+                    <strong>Technical Inquiries:</strong><br>
                     <a href="mailto:iatechnologies45@gmail.com">iatechnologies45@gmail.com</a>
                 </div>
-                
                 <div class="sponsors-section">
-                    <span class="sponsor-badge campaign">No Room For Racism</span>
+                    <span class="sponsor-badge campaign">No room for racism</span>
                     <span class="sponsor-badge">Apple Link</span>
                     <span class="sponsor-badge">ventas</span>
                 </div>
             </div>
-            
-            <div class="footer-bottom">
-                &copy; 2026 The Edwins. All rights reserved.
-            </div>
+            <div class="footer-bottom">&copy; 2026 The Edwins. All rights reserved.</div>
         </div>
     </footer>
 
@@ -284,50 +218,47 @@
         const uploadForm = document.getElementById('uploadForm');
         const processBtn = document.getElementById('processBtn');
         const statusDiv = document.getElementById('status');
+        
+        // Auto-assign default dates covering a standard academic semester block
+        const currentYear = new Date().getFullYear();
+        document.getElementById('semesterStart').value = `${currentYear}-01-05`;
+        document.getElementById('semesterEnd').value = `${currentYear}-06-30`;
+
         let eventCounter = 0;
+        const daysArray = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
         function createEventRow(initialData = {}) {
             eventCounter++;
             const rowIndex = eventCounter;
             
+            let optionsHtml = daysArray.map(d => `<option value="${d}" ${initialData.day === d ? 'selected' : ''}>${d}</option>`).join('');
+
             const eventHtml = `
                 <div class="event-row" id="row-${rowIndex}">
                     <button type="button" class="remove-btn" onclick="document.getElementById('row-${rowIndex}').remove()">X</button>
-                    <div class="grid-2">
+                    <div class="grid-3">
                         <div class="form-group">
-                            <label>Subject / Event Name</label>
-                            <input type="text" class="field-title" required value="${initialData.title || ''}" placeholder="e.g., Mathematics">
+                            <label>Course Name / Module</label>
+                            <input type="text" class="field-title" required value="${initialData.title || ''}" placeholder="e.g. Ethical Hacking">
                         </div>
                         <div class="form-group">
                             <label>Venue / Room</label>
-                            <input type="text" class="field-location" required value="${initialData.location || ''}" placeholder="e.g., Room 302C">
+                            <input type="text" class="field-location" required value="${initialData.location || ''}" placeholder="e.g. Lab 4">
                         </div>
-                    </div>
-
-                    <div class="checkbox-group">
-                        <input type="checkbox" class="field-isRecurring" id="rec-${rowIndex}" ${initialData.isRecurring ? 'checked' : ''} onchange="toggleRecurrence(${rowIndex})">
-                        <label for="rec-${rowIndex}">This event repeats weekly</label>
+                        <div class="form-group">
+                            <label>Day of Week</label>
+                            <select class="field-day">${optionsHtml}</select>
+                        </div>
                     </div>
 
                     <div class="grid-2">
                         <div class="form-group">
-                            <label id="startLabel-${rowIndex}">${initialData.isRecurring ? 'Start Date (First day)' : 'Date'}</label>
-                            <input type="date" class="field-startDate" value="${initialData.startDate || ''}" required>
-                        </div>
-                        <div class="form-group ${initialData.isRecurring ? '' : 'hidden'}" id="endDateContainer-${rowIndex}">
-                            <label>End Date (Until when?)</label>
-                            <input type="date" class="field-endDate" value="${initialData.endDate || ''}" ${initialData.isRecurring ? 'required' : ''}>
-                        </div>
-                    </div>
-
-                    <div class="grid-2" style="margin-top: 0.5rem;">
-                        <div class="form-group">
                             <label>Start Time</label>
-                            <input type="time" class="field-startTime" value="${initialData.startTime || ''}" required>
+                            <input type="time" class="field-startTime" value="${initialData.startTime || '08:00'}" required>
                         </div>
                         <div class="form-group">
                             <label>End Time</label>
-                            <input type="time" class="field-endTime" value="${initialData.endTime || ''}" required>
+                            <input type="time" class="field-endTime" value="${initialData.endTime || '10:00'}" required>
                         </div>
                     </div>
                 </div>
@@ -335,79 +266,53 @@
             eventsContainer.insertAdjacentHTML('beforeend', eventHtml);
         }
 
-        function toggleRecurrence(id) {
-            const isChecked = document.getElementById(`rec-${id}`).checked;
-            const container = document.getElementById(`endDateContainer-${id}`);
-            const label = document.getElementById(`startLabel-${id}`);
-            const endDateInput = container.querySelector('.field-endDate');
+        addEventBtn.addEventListener('click', () => createEventRow({day: "Monday"}));
 
-            if (isChecked) {
-                container.classList.remove('hidden');
-                label.innerText = "Start Date (First day)";
-                endDateInput.required = true;
-            } else {
-                container.classList.add('hidden');
-                label.innerText = "Date";
-                endDateInput.required = false;
-                endDateInput.value = "";
-            }
-        }
-
-        // Generate dynamic entries for IAA CELCAT Structure
+        // Document cross-parser engine mapping logic
         function parseTimetableTextAndPopulate(rawText) {
             const standardizedText = rawText.replace(/\s+/g, ' ');
-            const blockRegex = /Module:\s*(.*?)(?=Module:|$)/gi;
-            const matches = [...standardizedText.matchAll(blockRegex)];
-            const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-            const today = new Date();
-
-            // Explicit course block map to hold the accurate time intervals from IAA structure
+            const blockRegex = /(?:Module|Subject|Class):\s*(.*?)(?=(?:Module|Subject|Class):|$)/gi;
+            let matches = [...standardizedText.matchAll(blockRegex)];
+            
             const timeMap = {
-                "Security in Emerging Technologies": { start: "08:10", end: "10:20" },
-                "Ethical Hacking": { start: "08:10", end: "10:20" },
-                "ICT Project Management": { start: "08:10", end: "10:20" },
-                "Biometricks": { start: "08:10", end: "12:40" },
-                "Digital Forensics": { start: "11:40", end: "13:50" }
+                "Security": { start: "08:10", end: "10:20" },
+                "Hacking": { start: "08:10", end: "10:20" },
+                "Project": { start: "08:10", end: "10:20" },
+                "Biometrics": { start: "08:10", end: "12:40" },
+                "Forensics": { start: "11:40", end: "13:50" }
             };
+
+            if (matches.length === 0 && standardizedText.length > 20) {
+                // Fallback splitting logic if standard keyword anchors are missing inside structural documents
+                const items = standardizedText.split(/[\d]{3,}/);
+                if(items.length > 1) {
+                    matches = items.map(item => [item, item]);
+                }
+            }
 
             if (matches.length > 0) {
                 matches.forEach(match => {
-                    const blockContent = match[1];
-                    
-                    let titleMatch = blockContent.match(/^(.*?)(?=\[|\bRoom\b)/i);
-                    let title = titleMatch ? titleMatch[1].trim() : "University Course";
-                    title = title.replace(/\(Master\)/gi, '').trim();
+                    const blockContent = match[1] || match[0];
+                    if (blockContent.trim().length < 5) return;
 
+                    let title = blockContent.split(/[\[\n,]/)[0].replace(/Room|Venue/gi, '').trim();
                     if (eventsContainer.innerHTML.includes(title)) return;
 
-                    let roomMatch = blockContent.match(/Room:\s*([^\[\n]+)/i);
-                    let room = roomMatch ? roomMatch[1].trim() : "Main Campus Hall";
-                    if(room.includes("Location")) room = room.split("Location")[0].trim();
+                    let roomMatch = blockContent.match(/(?:Room|Venue|Loc):\s*([a-zA-Z0-9\s-]+)/i);
+                    let room = roomMatch ? roomMatch[1].trim() : "Main Campus Lecture Hall";
 
-                    const positionInRaw = standardizedText.indexOf(match[0]);
-                    const precedingText = standardizedText.substring(Math.max(0, positionInRaw - 180), positionInRaw);
-                    
                     let detectedDay = "Monday";
-                    for (const day of daysOfWeek) {
-                        if (precedingText.includes(day)) {
+                    for (const day of daysArray) {
+                        if (blockContent.includes(day) || standardizedText.substring(Math.max(0, standardizedText.indexOf(blockContent) - 200), standardizedText.indexOf(blockContent)).includes(day)) {
                             detectedDay = day;
                             break;
                         }
                     }
 
-                    const targetDayNum = daysOfWeek.indexOf(detectedDay) + 1;
-                    const currentDayNum = today.getDay() === 0 ? 7 : today.getDay();
-                    let daysToTarget = targetDayNum - currentDayNum;
-                    if (daysToTarget < 0) daysToTarget += 7;
-                    
-                    const eventDate = new Date(today);
-                    eventDate.setDate(today.getDate() + daysToTarget);
-                    const formattedDate = eventDate.toISOString().split('T')[0];
-
-                    let matchedTimes = { start: "08:10", end: "10:20" };
+                    let times = { start: "08:30", end: "11:30" };
                     for (let key in timeMap) {
                         if (title.toLowerCase().includes(key.toLowerCase())) {
-                            matchedTimes = timeMap[key];
+                            times = timeMap[key];
                             break;
                         }
                     }
@@ -415,152 +320,163 @@
                     createEventRow({
                         title: title,
                         location: room,
-                        isRecurring: true,
-                        startDate: formattedDate,
-                        endDate: "2026-06-30", 
-                        startTime: matchedTimes.start,    
-                        endTime: matchedTimes.end       
+                        day: detectedDay,
+                        startTime: times.start,
+                        endTime: times.end
                     });
                 });
             } else {
-                createEventRow({ 
-                    title: "Manual Entry Required (CELCAT format error)", 
-                    location: "Main Hall",
-                    isRecurring: false,
-                    startDate: today.toISOString().split('T')[0],
-                    startTime: "08:00",
-                    endTime: "10:00"
-                });
+                createEventRow({ title: "Imported Class Slot", location: "See Attached Document", day: "Monday" });
             }
         }
 
-        createEventRow();
-        addEventBtn.addEventListener('click', () => createEventRow());
-
+        // Multiplex multi-format processing form binding
         uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const fileInput = document.getElementById('timetableFile');
             if (!fileInput.files || fileInput.files.length === 0) return;
 
             processBtn.disabled = true;
-            statusDiv.innerText = "Analyzing layout structure...";
+            statusDiv.innerText = "Processing structured file content metrics...";
+            
+            if (document.querySelectorAll('.event-row').length === 1 && !document.querySelector('.field-title').value) {
+                eventsContainer.innerHTML = '';
+            }
 
             try {
                 const file = fileInput.files[0];
-                if (document.querySelectorAll('.event-row').length === 1 && !document.querySelector('.field-title').value) {
-                    eventsContainer.innerHTML = '';
-                }
+                const fileName = file.name.toLowerCase();
 
-                if (file.type === "application/pdf" || file.name.toLowerCase().endsWith('.pdf')) {
+                if (fileName.endsWith('.pdf')) {
                     const arrayBuffer = await file.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                     let combinedPdfText = "";
-                    
                     for (let i = 1; i <= pdf.numPages; i++) {
                         const page = await pdf.getPage(i);
                         const textContent = await page.getTextContent();
-                        const pageText = textContent.items.map(item => item.str).join(" ");
-                        combinedPdfText += pageText + "\n";
+                        combinedPdfText += textContent.items.map(item => item.str).join(" ") + "\n";
                     }
                     parseTimetableTextAndPopulate(combinedPdfText);
-                    statusDiv.innerHTML = "✅ PDF timetable data read successfully! Review your entries below.";
+                    statusDiv.innerText = "✅ Parsed PDF schedule matrix values!";
+
+                } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    let sheetText = "";
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        sheetText += XLSX.utils.sheet_to_txt(worksheet) + " ";
+                    });
+                    parseTimetableTextAndPopulate(sheetText);
+                    statusDiv.innerText = "✅ Parsed Excel sheet columns and keys!";
+
+                } else if (fileName.endsWith('.docx')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                    parseTimetableTextAndPopulate(result.value);
+                    statusDiv.innerText = "✅ Parsed Word text layout values!";
+
                 } else {
+                    // Image processing handler fallback
                     const result = await Tesseract.recognize(file, 'eng');
                     parseTimetableTextAndPopulate(result.data.text);
-                    statusDiv.innerHTML = "✅ Image scanned successfully! Review your entries below.";
+                    statusDiv.innerText = "✅ Scanned schedule text successfully!";
                 }
             } catch (err) {
                 console.error(err);
-                statusDiv.innerText = "❌ Error analyzing file locally.";
+                statusDiv.innerText = "❌ Parser error reading document structural values.";
             } finally {
                 processBtn.disabled = false;
             }
         });
 
+        // Date calculating logic to link static week-day maps with absolute target calendar intervals
+        function getNextInitialDateForDay(startDateStr, targetDayName) {
+            const start = new Date(startDateStr);
+            const targetIndex = daysArray.indexOf(targetDayName); 
+            const startIndex = start.getDay() === 0 ? 6 : start.getDay() - 1; 
+            
+            let difference = targetIndex - startIndex;
+            if (difference < 0) difference += 7;
+            
+            start.setDate(start.getDate() + difference);
+            return start.toISOString().split('T')[0];
+        }
+
         function formatIcsDateTime(dateStr, timeStr) {
             return dateStr.replace(/-/g, '') + 'T' + timeStr.replace(/:/g, '') + '00';
         }
 
-        function formatGoogleDateTime(dateStr, timeStr) {
-            return dateStr.replace(/-/g, '') + 'T' + timeStr.replace(/:/g, '') + '00';
-        }
-
-        function getDayOfWeekFlag(dateString) {
-            const days = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-            const d = new Date(dateString);
-            return days[d.getDay()];
-        }
-
+        // Unified cross-platform output processor
         document.getElementById('masterEventForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const rows = document.querySelectorAll('.event-row');
-            
-            if (rows.length === 0) return;
+            const semStart = document.getElementById('semesterStart').value;
+            const semEnd = document.getElementById('semesterEnd').value;
 
-            let icsLines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//The Edwins//EN", "CALSCALE:GREGORIAN"];
+            if (rows.length === 0 || !semStart || !semEnd) {
+                alert("Please declare active limits and at least one tracking slot row.");
+                return;
+            }
+
+            let icsLines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//The Edwins Semester System//EN", "CALSCALE:GREGORIAN"];
             const nowTimestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            
+            // Build the first cloud event pointer fallback token string parameters
+            let primaryCloudLink = "";
 
-            rows.forEach(row => {
+            rows.forEach((row, idx) => {
                 const title = row.querySelector('.field-title').value;
                 const location = row.querySelector('.field-location').value;
-                const isRecurring = row.querySelector('.field-isRecurring').checked;
-                const startDate = row.querySelector('.field-startDate').value;
-                const endDate = row.querySelector('.field-endDate').value;
+                const dayName = row.querySelector('.field-day').value;
                 const startTime = row.querySelector('.field-startTime').value;
                 const endTime = row.querySelector('.field-endTime').value;
+
+                const computedStartDate = getNextInitialDateForDay(semStart, dayName);
+                const dayFlags = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+                const icsDayFlag = dayFlags[daysArray.indexOf(dayName)];
 
                 icsLines.push("BEGIN:VEVENT");
                 icsLines.push(`SUMMARY:${title}`);
                 icsLines.push(`LOCATION:${location}`);
-                icsLines.push(`DTSTART:${formatIcsDateTime(startDate, startTime)}`);
-                icsLines.push(`DTEND:${formatIcsDateTime(startDate, endTime)}`);
+                icsLines.push(`DTSTART:${formatIcsDateTime(computedStartDate, startTime)}`);
+                icsLines.push(`DTEND:${formatIcsDateTime(computedStartDate, endTime)}`);
                 icsLines.push(`DTSTAMP:${nowTimestamp}`);
-                icsLines.push(`UID:${Math.random().toString(36).substring(2, 11)}@theedwins`);
-
-                if (isRecurring && endDate) {
-                    icsLines.push(`RRULE:FREQ=WEEKLY;UNTIL=${endDate.replace(/-/g, '')}T235959Z;BYDAY=${getDayOfWeekFlag(startDate)}`);
-                }
+                icsLines.push(`UID:${Math.random().toString(36).substring(2, 11)}@theedwinsrecurring`);
+                icsLines.push(`RRULE:FREQ=WEEKLY;UNTIL=${semEnd.replace(/-/g, '')}T235959Z;BYDAY=${icsDayFlag}`);
                 icsLines.push("END:VEVENT");
+
+                if (idx === 0) {
+                    const gTitle = encodeURIComponent(title);
+                    const gLoc = encodeURIComponent(location);
+                    const gStart = formatIcsDateTime(computedStartDate, startTime);
+                    const gEnd = formatIcsDateTime(computedStartDate, endTime);
+                    const untilFlag = semEnd.replace(/-/g, '') + 'T235959Z';
+                    primaryCloudLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${gTitle}&dates=${gStart}/${gEnd}&recur=RRULE:FREQ=WEEKLY;UNTIL=${untilFlag};BYDAY=${icsDayFlag}&location=${gLoc}`;
+                }
             });
 
             icsLines.push("END:VCALENDAR");
             const icsContent = icsLines.join("\r\n");
-            
-            // Trigger download of standard physical .ics file
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "synced_timetable.ics";
-            document.body.appendChild(a);
-            a.click();
-            URL.revokeObjectURL(url);
-            a.remove();
 
-            // Attempt to force-push calendar opening protocol natively
+            // Attempt seamless system intents
             const base64Ics = btoa(unescape(encodeURIComponent(icsContent)));
-            window.location.href = "webcal://data:text/calendar;base64," + base64Ics;
-
-            // Generate a One-Click Cloud Fallback Link using the first primary event structure
-            const firstRow = rows[0];
-            const gTitle = encodeURIComponent(firstRow.querySelector('.field-title').value);
-            const gLoc = encodeURIComponent(firstRow.querySelector('.field-location').value);
-            const gStart = formatGoogleDateTime(firstRow.querySelector('.field-startDate').value, firstRow.querySelector('.field-startTime').value);
-            const gEnd = formatGoogleDateTime(firstRow.querySelector('.field-startDate').value, firstRow.querySelector('.field-endTime').value);
             
-            const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${gTitle}&dates=${gStart}/${gEnd}&details=Synced+via+The+Edwins&location=${gLoc}`;
+            // Native inline browser redirection sequence context hook
+            setTimeout(() => {
+                window.location.href = "webcal://data:text/calendar;base64," + base64Ics;
+            }, 100);
 
-            // Inject the responsive one-click option into the screen UI status box
+            // Fallback structural rendering block configuration injection onto dashboard panel UI layout cards
             statusDiv.innerHTML = `
-                <div style="margin-top: 1rem; padding: 1.25rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 0.5rem; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                    <p style="margin: 0 0 0.75rem 0; color: #1e40af; font-size: 0.95rem; font-weight: 500;">Phone couldn't open the file automatically?</p>
-                    <a href="${googleCalendarUrl}" target="_blank" style="display: inline-block; background: #2563eb; color: white; padding: 0.65rem 1.2rem; text-decoration: none; border-radius: 0.375rem; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(37,99,235,0.2);">
-                        👉 One-Click Sync to Google Calendar
+                <div style="margin-top: 1rem; padding: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem; text-align: center;">
+                    <p style="margin: 0 0 0.75rem 0; color: #166534; font-size: 0.95rem; font-weight: 600;">📅 Full Term Recurrence Package Compiled!</p>
+                    <p style="margin: 0 0 1rem 0; color: #475569; font-size: 0.85rem;">If your device didn't pop open its local calendar app view, use the live safe link sequence below to populate your cloud space directly in one tap:</p>
+                    <a href="${primaryCloudLink}" target="_blank" style="display: inline-block; background: #059669; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 0.375rem; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(5,150,105,0.2);">
+                        🔗 Add Semester Sequence To Calendar
                     </a>
                 </div>
             `;
-            
-            // Scroll user cleanly to view the newly appeared action option card on mobile interfaces
             statusDiv.scrollIntoView({ behavior: 'smooth' });
         });
     </script>
