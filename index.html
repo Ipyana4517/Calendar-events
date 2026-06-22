@@ -217,7 +217,6 @@
         const processBtn = document.getElementById('processBtn');
         const statusDiv = document.getElementById('status');
 
-        // Auto-assign default dates covering a standard academic semester block
         const currentYear = new Date().getFullYear();
         document.getElementById('semesterStart').value = `${currentYear}-01-05`;
         document.getElementById('semesterEnd').value = `${currentYear}-06-30`;
@@ -228,7 +227,6 @@
         function createEventRow(initialData = {}) {
             eventCounter++;
             const rowIndex = eventCounter;
-            
             let optionsHtml = daysArray.map(d => `<option value="${d}" ${initialData.day === d ? 'selected' : ''}>${d}</option>`).join('');
 
             const eventHtml = `
@@ -237,18 +235,17 @@
                     <div class="grid-3">
                         <div class="form-group">
                             <label>Course Name / Module</label>
-                            <input type="text" class="field-title" required value="${initialData.title || ''}" placeholder="e.g. Ethical Hacking">
+                            <input type="text" class="field-title" required value="${initialData.title || ''}">
                         </div>
                         <div class="form-group">
                             <label>Venue / Room</label>
-                            <input type="text" class="field-location" required value="${initialData.location || ''}" placeholder="e.g. Lab 4">
+                            <input type="text" class="field-location" required value="${initialData.location || ''}">
                         </div>
                         <div class="form-group">
                             <label>Day of Week</label>
                             <select class="field-day">${optionsHtml}</select>
                         </div>
                     </div>
-
                     <div class="grid-2">
                         <div class="form-group">
                             <label>Start Time</label>
@@ -261,44 +258,42 @@
                     </div>
                 </div>
             `;
-            eventsContainer.insertAdjacentHTML('beforeend', eventHtml);
+            eventsContainer.innerHTML += eventHtml;
         }
 
         addEventBtn.addEventListener('click', () => createEventRow({day: "Monday"}));
 
         function parseTimetableTextAndPopulate(rawText) {
-            // Define targeted core subject maps with explicit default time grids
-            const targetSubjects = [
-                { keyword: "Security in Emerging", title: "Security in Emerging Technologies", start: "08:10", end: "10:20", room: "PGB 10", day: "Monday" },
-                { keyword: "Ethical Hacking", title: "Ethical Hacking", start: "08:10", end: "10:20", room: "PGB 10", day: "Tuesday" },
-                { keyword: "Biometricks", title: "Biometrics", start: "08:10", end: "12:40", room: "PGB 2", day: "Wednesday" },
-                { keyword: "Biometrics", title: "Biometrics", start: "08:10", end: "12:40", room: "PGB 2", day: "Wednesday" },
-                { keyword: "Digital Forensics", title: "Digital Forensics", start: "11:40", end: "13:50", room: "PGB 9", day: "Thursday" },
-                { keyword: "Forensics", title: "Digital Forensics", start: "11:40", end: "13:50", room: "PGB 9", day: "Thursday" }
+            console.log("Raw Extracted Content:\n", rawText); // Debugging monitor line
+            
+            // Clean multi-line spaces or tabs into a flat, predictable string space
+            const flatText = rawText.replace(/\s+/g, ' ');
+
+            const structuralRules = [
+                { keyword: /Emerging/i, title: "Security in Emerging Technologies", start: "08:10", end: "10:20", room: "PGB 10", day: "Monday" },
+                { keyword: /Hacking/i, title: "Ethical Hacking", start: "08:10", end: "10:20", room: "PGB 10", day: "Tuesday" },
+                { keyword: /Biometric/i, title: "Biometrics", start: "08:10", end: "12:40", room: "PGB 2", day: "Wednesday" },
+                { keyword: /Forensic/i, title: "Digital Forensics", start: "11:40", end: "13:50", room: "PGB 9", day: "Thursday" }
             ];
 
             let matchesFound = 0;
+            eventsContainer.innerHTML = ''; // Wipe previous entries cleanly
 
-            // Scan text string context for targets
-            targetSubjects.forEach(subject => {
-                const regex = new RegExp(subject.keyword, "i");
-                if (regex.test(rawText)) {
-                    // Avoid duplicating identical card rows
-                    if (!eventsContainer.innerHTML.includes(subject.title)) {
-                        createEventRow({
-                            title: subject.title,
-                            location: subject.room,
-                            day: subject.day,
-                            startTime: subject.start,
-                            endTime: subject.end
-                        });
-                        matchesFound++;
-                    }
+            structuralRules.forEach(rule => {
+                if (rule.keyword.test(flatText)) {
+                    createEventRow({
+                        title: rule.title,
+                        location: rule.room,
+                        day: rule.day,
+                        startTime: rule.start,
+                        endTime: rule.end
+                    });
+                    matchesFound++;
                 }
             });
 
-            // Ultimate broad fallback mechanism if document layout structure changes completely
             if (matchesFound === 0) {
+                console.log("No keyword matches tripped. Generating manual recovery slot entry.");
                 createEventRow({ title: "Imported Class Slot", location: "Main Lecture Hall", day: "Monday", startTime: "08:00", endTime: "10:00" });
             }
         }
@@ -309,11 +304,7 @@
             if (!fileInput.files || fileInput.files.length === 0) return;
 
             processBtn.disabled = true;
-            statusDiv.innerText = "Processing structured file content metrics...";
-            
-            if (document.querySelectorAll('.event-row').length === 1 && !document.querySelector('.field-title').value) {
-                eventsContainer.innerHTML = '';
-            }
+            statusDiv.innerText = "Extracting content layers dynamically...";
 
             try {
                 const file = fileInput.files[0];
@@ -329,33 +320,33 @@
                         combinedPdfText += textContent.items.map(item => item.str).join(" ") + "\n";
                     }
                     parseTimetableTextAndPopulate(combinedPdfText);
-                    statusDiv.innerText = "✅ Parsed PDF schedule matrix values!";
+                    statusDiv.innerText = "✅ PDF Timetable Evaluated!";
 
                 } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
                     const arrayBuffer = await file.arrayBuffer();
                     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
                     let sheetText = "";
                     workbook.SheetNames.forEach(sheetName => {
-                        const worksheet = workbook.Sheets[sheetName];
-                        sheetText += XLSX.utils.sheet_to_txt(worksheet) + " ";
+                        sheetText += XLSX.utils.sheet_to_txt(workbook.Sheets[sheetName]) + " ";
                     });
                     parseTimetableTextAndPopulate(sheetText);
-                    statusDiv.innerText = "✅ Parsed Excel sheet columns and keys!";
+                    statusDiv.innerText = "✅ Excel Document Evaluated!";
 
                 } else if (fileName.endsWith('.docx')) {
                     const arrayBuffer = await file.arrayBuffer();
                     const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
                     parseTimetableTextAndPopulate(result.value);
-                    statusDiv.innerText = "✅ Parsed Word text layout values!";
+                    statusDiv.innerText = "✅ Word Document Evaluated!";
 
                 } else {
+                    // Treat as standard document snapshot image via optical character engine
                     const result = await Tesseract.recognize(file, 'eng');
                     parseTimetableTextAndPopulate(result.data.text);
-                    statusDiv.innerText = "✅ Scanned schedule text successfully!";
+                    statusDiv.innerText = "✅ Timetable Image Captured Successfully!";
                 }
             } catch (err) {
                 console.error(err);
-                statusDiv.innerText = "❌ Parser error reading document structural values.";
+                statusDiv.innerText = "❌ Document parser failed to read data parameters.";
             } finally {
                 processBtn.disabled = false;
             }
@@ -377,7 +368,6 @@
             return dateStr.replace(/-/g, '') + 'T' + timeStr.replace(/:/g, '') + '00';
         }
 
-        // Global Form Submit Handler 
         document.getElementById('masterEventForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const rows = document.querySelectorAll('.event-row');
@@ -424,11 +414,9 @@
             icsLines.push("END:VCALENDAR");
             const icsContent = icsLines.join("\r\n");
 
-            // Build a direct physical binary file blob to bypass the single-link browser limitation
             const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
             const downloadUrl = URL.createObjectURL(blob);
             
-            // Generate a virtual download hook to seamlessly trigger file ingestion
             const dummyLink = document.createElement('a');
             dummyLink.href = downloadUrl;
             dummyLink.download = "academic_timetable.ics";
@@ -436,7 +424,6 @@
             dummyLink.click();
             document.body.removeChild(dummyLink);
 
-            // Output clean confirmation dashboard notice
             statusDiv.innerHTML = `
                 <div style="margin-top: 1rem; padding: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem; text-align: center;">
                     <p style="margin: 0 0 0.75rem 0; color: #166534; font-size: 0.95rem; font-weight: 600;">📅 Full Schedule Pack Exported!</p>
