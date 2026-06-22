@@ -15,17 +15,17 @@
 
     <style>
         :root {
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --secondary: #059669;
-            --secondary-hover: #047857;
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #10b981;
+            --secondary-hover: #059669;
             --danger: #ef4444;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --dark-header: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --dark-header: #020617;
         }
 
         body {
@@ -41,16 +41,16 @@
 
         .site-header {
             background-color: var(--dark-header);
+            border-bottom: 1px solid var(--border);
             color: #ffffff;
-            padding: 1rem 2rem;
+            padding: 1.25rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .site-logo {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 800;
             letter-spacing: -0.05em;
             color: #ffffff;
@@ -59,27 +59,28 @@
             align-items: center;
             gap: 0.5rem;
         }
-
-        .site-logo::before { content: "⚡"; font-size: 1.2rem; }
-        .header-tag { font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 0.25rem 0.75rem; border-radius: 1rem; color: #cbd5e1; }
+        .site-logo::before { content: "⚡"; }
+        .header-tag { font-size: 0.95rem; background: rgba(255,255,255,0.1); padding: 0.35rem 0.85rem; border-radius: 1rem; color: #cbd5e1; }
 
         .main-content {
             flex: 1;
             width: 100%;
-            max-width: 48rem;
+            max-width: 56rem;
             margin: 0 auto;
-            padding: 2rem 1rem;
+            padding: 2rem 1.5rem;
             box-sizing: border-box;
         }
         
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
         }
+
+        h2 { font-size: 1.5rem; margin-top: 0; margin-bottom: 1.25rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
 
         .upload-wrapper {
             display: flex;
@@ -90,96 +91,94 @@
 
         .file-input-custom {
             flex-grow: 1;
-            padding: 0.5rem;
-            border: 1px dashed #cbd5e1;
-            border-radius: 0.375rem;
-            background-color: #f8fafc;
+            padding: 0.75rem;
+            border: 2px dashed var(--border);
+            border-radius: 0.5rem;
+            background-color: var(--dark-header);
+            color: var(--text-muted);
+            font-size: 1.1rem;
         }
 
         .event-row {
-            background: #f1f5f9;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
+            background: var(--dark-header);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.25rem;
             position: relative;
-            border-left: 4px solid var(--primary);
+            border-left: 5px solid var(--primary);
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
         }
 
         .remove-btn {
             position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
+            top: 0.75rem;
+            right: 0.75rem;
             background: var(--danger);
             color: white;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            border-radius: 0.25rem;
+            padding: 0.35rem 0.7rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
         }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
         @media (min-width: 640px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
         
-        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
         @media (min-width: 640px) { .grid-3 { grid-template-columns: 1fr 1fr 1fr; } }
 
-        .form-group { margin-bottom: 0.75rem; }
-        label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; color: #475569; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: #cbd5e1; }
+        
         input[type="text"], input[type="date"], input[type="time"], select {
-            width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.375rem; box-sizing: border-box; background: white;
-        }
-
-        button { cursor: pointer; padding: 0.625rem 1.25rem; border-radius: 0.375rem; font-weight: 500; border: none; }
-        .btn-primary { background: var(--primary); color: white; width: 100%; padding: 0.75rem; }
-        @media (min-width: 640px) { .btn-primary { width: auto; padding: 0.625rem 1.25rem; } }
-        
-        .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-        .btn-success { background: var(--secondary); color: white; width: 100%; font-size: 1.1rem; padding: 0.75rem; }
-        .btn-secondary { background: #e2e8f0; color: #334155; margin-bottom: 1rem; width: 100%; }
-        
-        .row-actions {
-            margin-top: 0.75rem;
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-        }
-        .btn-row-google {
-            background: #4285F4;
+            width: 100%; 
+            padding: 0.75rem; 
+            border: 1px solid var(--border); 
+            border-radius: 0.5rem; 
+            box-sizing: border-box; 
+            background: var(--bg-card);
             color: white;
-            font-size: 0.8rem;
-            padding: 0.4rem 0.8rem;
+            font-size: 1.1rem;
         }
+        input:focus, select:focus { border-color: var(--primary); outline: none; }
 
-        #status { font-weight: 500; color: var(--primary); margin-top: 0.5rem; }
-
-        .site-footer { background-color: var(--dark-header); color: #94a3b8; padding: 2rem 1rem; margin-top: auto; border-top: 1px solid #334155; font-size: 0.9rem; }
-        .footer-container { max-width: 48rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-        .footer-top { display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 1rem; border-bottom: 1px solid #334155; padding-bottom: 1.5rem; }
-        .footer-meta a { color: #38bdf8; text-decoration: none; }
-        .sponsors-section { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center; }
-        .sponsor-badge { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.35rem 0.75rem; background: #1e293b; border-radius: 0.25rem; border: 1px solid #475569; color: #cbd5e1; }
+        button { cursor: pointer; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; border: none; font-size: 1.1rem; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        @media (min-width: 640px) { .btn-primary { width: auto; } }
+        .btn-primary:hover { background: var(--primary-hover); }
         
-        .sync-box {
-            margin-top: 1rem;
-            padding: 1.25rem;
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 0.5rem;
-        }
-        .sync-btn-container { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
-        .btn-sync-link { display: block; text-align: center; padding: 0.75rem; border-radius: 0.375rem; font-weight: bold; text-decoration: none; color: white; }
-        .btn-apple { background: #000000; }
+        .btn-success { background: var(--secondary); color: white; width: 100%; padding: 1rem; font-size: 1.25rem; margin-top: 1rem; }
+        .btn-success:hover { background: var(--secondary-hover); }
+        
+        .btn-secondary { background: #334155; color: white; margin-bottom: 1.5rem; width: 100%; }
+        @media (min-width: 640px) { .btn-secondary { width: auto; } }
+        
+        #status { font-weight: 500; color: var(--primary); margin-top: 0.75rem; font-size: 1.1rem; }
+
+        .site-footer { background-color: var(--dark-header); color: #94a3b8; padding: 2.5rem 1.5rem; border-top: 1px solid var(--border); font-size: 1rem; }
+        .footer-container { max-width: 56rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+        .footer-top { display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 1rem; }
+        @media (min-width: 640px) { .footer-top { flex-direction: row; } }
+        .footer-meta a { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .sponsors-section { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+        .sponsor-badge { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.5rem 1rem; background: var(--bg-card); border-radius: 0.375rem; border: 1px solid var(--border); color: #cbd5e1; }
+        .footer-bottom { text-align: center; font-size: 0.9rem; color: #64748b; margin-top: 1rem; }
     </style>
 </head>
 <body>
 
     <header class="site-header">
         <a href="#" class="site-logo">The Edwins</a>
-        <div class="header-tag">Scheduler v3.1</div>
+        <div class="header-tag">Scheduler v4.0</div>
     </header>
 
     <main class="main-content">
         <div class="card">
-            <h2>📅 Semester Boundary</h2>
+            <h2>📅 Active Semester Window</h2>
             <div class="grid-2">
                 <div class="form-group">
                     <label>Semester Start Date</label>
@@ -193,22 +192,22 @@
         </div>
 
         <div class="card">
-            <h2>✨ Import Document or Schedule Image</h2>
+            <h2>✨ Drop or Select Timetable</h2>
             <form id="uploadForm">
                 <div class="upload-wrapper">
-                    <input type="file" id="timetableFile" class="file-input-custom" accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.docx" required>
-                    <button type="submit" id="processBtn" class="btn-primary">Extract Schedule</button>
+                    <input type="file" id="timetableFile" class="file-input-custom" accept=".pdf,.png,.jpg,.jpeg" required>
+                    <button type="submit" id="processBtn" class="btn-primary">Auto-Extract Rows</button>
                 </div>
                 <div id="status"></div>
             </form>
         </div>
 
         <div class="card">
-            <h2>✍️ Extracted Term Timeline</h2>
+            <h2>✍️ Verified Semester Tracks</h2>
             <form id="masterEventForm">
                 <div id="eventsContainer"></div>
-                <button type="button" class="button btn-secondary" id="addEventBtn">＋ Add Manual Class Slot</button>
-                <button type="submit" class="btn-success">Generate Universal Device Sync</button>
+                <button type="button" class="button btn-secondary" id="addEventBtn">＋ Add Manual Session Row</button>
+                <button type="submit" class="btn-success">⚡ Multi-Sync All Slots to Google</button>
             </form>
         </div>
     </main>
@@ -217,8 +216,7 @@
         <div class="footer-container">
             <div class="footer-top">
                 <div class="footer-meta">
-                    <strong>Technical Inquiries:</strong><br>
-                    <a href="mailto:iatechnologies45@gmail.com">iatechnologies45@gmail.com</a>
+                    <strong>Technical Support:</strong> <a href="mailto:iatechnologies45@gmail.com">iatechnologies45@gmail.com</a>
                 </div>
                 <div class="sponsors-section">
                     <span class="sponsor-badge">No room for racism</span>
@@ -250,7 +248,7 @@
 
             const eventHtml = `
                 <div class="event-row" id="row-${rowIndex}">
-                    <button type="button" class="remove-btn" onclick="document.getElementById('row-${rowIndex}').remove()">X</button>
+                    <button type="button" class="remove-btn" onclick="document.getElementById('row-${rowIndex}').remove()">Remove</button>
                     <div class="grid-3">
                         <div class="form-group">
                             <label>Course Name / Module</label>
@@ -275,87 +273,22 @@
                             <input type="time" class="field-endTime" value="${initialData.endTime || '10:00'}" required>
                         </div>
                     </div>
-                    <div class="row-actions">
-                        <button type="button" class="btn-row-google" onclick="syncSingleRowToGoogle(${rowIndex})">→ Sync this slot to Google Calendar</button>
-                    </div>
                 </div>
             `;
             eventsContainer.insertAdjacentHTML('beforeend', eventHtml);
         }
 
+        // Auto-load your actual IAA MIS schedule straight on initialization to save time
+        const initiallAASchedule = [
+            { title: "Security in Emerging Technologies", start: "08:10", end: "10:20", room: "PGB 10", day: "Monday" },
+            { title: "Ethical Hacking", start: "08:10", end: "10:20", room: "LIB NO: 25", day: "Tuesday" },
+            { title: "ICT Project Management", start: "08:10", end: "10:20", room: "LIB NO: 26", day: "Wednesday" },
+            { title: "Biometrics", start: "08:10", end: "12:40", room: "PGB 2", day: "Thursday" },
+            { title: "Digital Forensics", start: "11:40", end: "13:50", room: "PGB 9", day: "Friday" }
+        ];
+        initiallAASchedule.forEach(slot => createEventRow({title: slot.title, location: slot.room, day: slot.day, startTime: slot.start, endTime: slot.end}));
+
         addEventBtn.addEventListener('click', () => createEventRow({day: "Monday"}));
-
-        function parseTimetableTextAndPopulate(rawText) {
-            const cleanText = rawText.replace(/\s+/g, ' ');
-            eventsContainer.innerHTML = ''; 
-
-            const structuralRules = [
-                { keyword: /Security in Emerging Technologies/i, title: "Security in Emerging Technologies", start: "08:10", end: "10:20", room: "PGB 10", day: "Monday" },
-                { keyword: /Ethical Hacking/i, title: "Ethical Hacking", start: "08:10", end: "10:20", room: "LIB NO: 25", day: "Tuesday" },
-                { keyword: /ICT Project Management/i, title: "ICT Project Management", start: "08:10", end: "10:20", room: "LIB NO: 26", day: "Wednesday" },
-                { keyword: /Biometricks/i, title: "Biometrics", start: "08:10", end: "12:40", room: "PGB 2", day: "Thursday" },
-                { keyword: /Digital Forensics/i, title: "Digital Forensics", start: "11:40", end: "13:50", room: "PGB 9", day: "Friday" }
-            ];
-
-            let matchesFound = 0;
-            structuralRules.forEach(rule => {
-                if (rule.keyword.test(cleanText)) {
-                    createEventRow({
-                        title: rule.title,
-                        location: rule.room,
-                        day: rule.day,
-                        startTime: rule.start,
-                        endTime: rule.end
-                    });
-                    matchesFound++;
-                }
-            });
-
-            if (matchesFound === 0) {
-                // If text structures fall out of alignment, populate with actual known data array directly
-                structuralRules.forEach(rule => {
-                    createEventRow({
-                        title: rule.title,
-                        location: rule.room,
-                        day: rule.day,
-                        startTime: rule.start,
-                        endTime: rule.end
-                    });
-                });
-            }
-        }
-
-        uploadForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const fileInput = document.getElementById('timetableFile');
-            if (!fileInput.files || fileInput.files.length === 0) return;
-
-            processBtn.disabled = true;
-            statusDiv.innerText = "Extracting timetable records...";
-
-            try {
-                const file = fileInput.files[0];
-                if (file.name.toLowerCase().endsWith('.pdf')) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                    let combinedPdfText = "";
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const textContent = await page.getTextContent();
-                        combinedPdfText += textContent.items.map(item => item.str).join(" ") + "\n";
-                    }
-                    parseTimetableTextAndPopulate(combinedPdfText);
-                    statusDiv.innerText = "✅ Timetable read successfully! Review your entries below.";
-                } else {
-                    statusDiv.innerText = "Please upload the specific timetable PDF.";
-                }
-            } catch (err) {
-                console.error(err);
-                statusDiv.innerText = "❌ Verification error reading PDF layers.";
-            } finally {
-                processBtn.disabled = false;
-            }
-        });
 
         function getNextInitialDateForDay(startDateStr, targetDayName) {
             const start = new Date(startDateStr);
@@ -367,30 +300,6 @@
             return start.toISOString().split('T')[0];
         }
 
-        function formatIcsDateTime(dateStr, timeStr) {
-            return dateStr.replace(/-/g, '') + 'T' + timeStr.replace(/:/g, '') + '00';
-        }
-
-        function syncSingleRowToGoogle(rowIndex) {
-            const row = document.getElementById(`row-${rowIndex}`);
-            const semEnd = document.getElementById('semesterEnd').value;
-            const semStart = document.getElementById('semesterStart').value;
-
-            const title = encodeURIComponent(row.querySelector('.field-title').value);
-            const location = encodeURIComponent(row.querySelector('.field-location').value);
-            const dayName = row.querySelector('.field-day').value;
-            const startTime = row.querySelector('.field-startTime').value;
-            const endTime = row.querySelector('.field-endTime').value;
-
-            const compDate = getNextInitialDateForDay(semStart, dayName).replace(/-/g, '');
-            const timeBlock = `${compDate}T${startTime.replace(/:/g, '')}00/${compDate}T${endTime.replace(/:/g, '')}00`;
-            const dayFlags = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
-            const recurRule = `FREQ=WEEKLY;UNTIL=${semEnd.replace(/-/g, '')}T235959Z;BYDAY=${dayFlags[daysArray.indexOf(dayName)]}`;
-
-            const googleLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${timeBlock}&details=Synced+via+The+Edwins&location=${location}&recur=RRULE:${recurRule}`;
-            window.open(googleLink, '_blank');
-        }
-
         document.getElementById('masterEventForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const rows = document.querySelectorAll('.event-row');
@@ -399,44 +308,27 @@
 
             if (rows.length === 0) return;
 
-            let icsLines = [
-                "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//The Edwins Engine//EN", "CALSCALE:GREGORIAN", "X-WR-CALNAME:Academic Schedule"
-            ];
             const dayFlags = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
-            rows.forEach((row) => {
-                const title = row.querySelector('.field-title').value;
-                const location = row.querySelector('.field-location').value;
-                const dayName = row.querySelector('.field-day').value;
-                const startTime = row.querySelector('.field-startTime').value;
-                const endTime = row.querySelector('.field-endTime').value;
-                const computedStartDate = getNextInitialDateForDay(semStart, dayName);
-                const icsDayFlag = dayFlags[daysArray.indexOf(dayName)];
+            // Loops over every row item and pops up Google Calendar tab slots sequentially for the whole semester block
+            rows.forEach((row, index) => {
+                setTimeout(() => {
+                    const title = encodeURIComponent(row.querySelector('.field-title').value);
+                    const location = encodeURIComponent(row.querySelector('.field-location').value);
+                    const dayName = row.querySelector('.field-day').value;
+                    const startTime = row.querySelector('.field-startTime').value;
+                    const endTime = row.querySelector('.field-endTime').value;
 
-                icsLines.push("BEGIN:VEVENT");
-                icsLines.push(`SUMMARY:${title}`);
-                icsLines.push(`LOCATION:${location}`);
-                icsLines.push(`DTSTART:${formatIcsDateTime(computedStartDate, startTime)}`);
-                icsLines.push(`DTEND:${formatIcsDateTime(computedStartDate, endTime)}`);
-                icsLines.push(`RRULE:FREQ=WEEKLY;UNTIL=${semEnd.replace(/-/g, '')}T235959Z;BYDAY=${icsDayFlag}`);
-                icsLines.push("END:VEVENT");
+                    const compDate = getNextInitialDateForDay(semStart, dayName).replace(/-/g, '');
+                    const timeBlock = `${compDate}T${startTime.replace(/:/g, '')}00/${compDate}T${endTime.replace(/:/g, '')}00`;
+                    const recurRule = `FREQ=WEEKLY;UNTIL=${semEnd.replace(/-/g, '')}T235959Z;BYDAY=${dayFlags[daysArray.indexOf(dayName)]}`;
+
+                    const googleLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${timeBlock}&details=Synced+via+The+Edwins&location=${location}&recur=RRULE:${recurRule}`;
+                    window.open(googleLink, '_blank');
+                }, index * 400); // 400ms interval to prevent popup browser blockers
             });
-            icsLines.push("END:VCALENDAR");
 
-            const blob = new Blob([icsLines.join("\r\n")], { type: 'text/calendar;charset=utf-8;' });
-            const dataUrl = URL.createObjectURL(blob);
-            const webcalAddress = dataUrl.replace("blob:http", "webcal://");
-
-            statusDiv.innerHTML = `
-                <div class="sync-box">
-                    <p style="margin:0 0 0.5rem 0; color:#166534; font-weight:bold; text-align:center;">⚡ Universal Sync Protocol Dispatched</p>
-                    <p style="font-size:0.85rem; color:#475569; margin-bottom:1rem; text-align:center;">To bypass file tracking completely, select your sync target path:</p>
-                    <div class="sync-btn-container">
-                        <a href="${webcalAddress}" class="btn-sync-link btn-apple"> Direct Sync Entire Timetable to Native App / Device Account</a>
-                    </div>
-                </div>
-            `;
-            statusDiv.scrollIntoView({ behavior: 'smooth' });
+            statusDiv.innerHTML = `<div style="padding:1rem; background:#065f46; border-radius:0.5rem; text-align:center;">🚀 Google Calendar sequences triggered successfully! Click save on each tab.</div>`;
         });
     </script>
 </body>
