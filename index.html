@@ -148,6 +148,12 @@
         .sponsor-badge { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.35rem 0.75rem; background: #1e293b; border-radius: 0.25rem; border: 1px solid #475569; color: #cbd5e1; }
         .sponsor-badge.campaign { border-color: #ef4444; color: #fca5a5; font-weight: bold; }
         .footer-bottom { text-align: center; font-size: 0.8rem; color: #64748b; }
+        
+        /* Sync styling options */
+        .sync-btn-container { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+        .btn-sync-link { display: block; text-align: center; padding: 0.75rem; border-radius: 0.375rem; font-weight: bold; text-decoration: none; color: white; }
+        .btn-apple { background: #000000; }
+        .btn-google { background: #4285F4; }
     </style>
 </head>
 <body>
@@ -188,7 +194,7 @@
             <form id="masterEventForm">
                 <div id="eventsContainer"></div>
                 <button type="button" class="button btn-secondary" id="addEventBtn">＋ Add Manual Class Slot</button>
-                <button type="submit" class="btn-success">Sync to Calendar</button>
+                <button type="submit" class="btn-success">Launch Calendar Sync Links</button>
             </form>
         </div>
     </main>
@@ -264,12 +270,8 @@
         addEventBtn.addEventListener('click', () => createEventRow({day: "Monday"}));
 
         function parseTimetableTextAndPopulate(rawText) {
-            console.log("Parsing target PDF structure metric fields...");
-            
-            // Normalize layout spaces completely
             const cleanText = rawText.replace(/\s+/g, ' ');
 
-            // Strict matching rules custom-tailored exactly to IAA NTA Level 9 Timetable structure
             const structuralRules = [
                 { keyword: /Security in Emerging Technologies/i, title: "Security in Emerging Technologies", start: "08:10", end: "10:20", room: "PGB 10", day: "Monday" },
                 { keyword: /Ethical Hacking/i, title: "Ethical Hacking", start: "08:10", end: "10:20", room: "LIB NO: 25", day: "Tuesday" },
@@ -279,7 +281,7 @@
             ];
 
             let matchesFound = 0;
-            eventsContainer.innerHTML = ''; // Fresh parse window clean wipe
+            eventsContainer.innerHTML = ''; 
 
             structuralRules.forEach(rule => {
                 if (rule.keyword.test(cleanText)) {
@@ -295,7 +297,6 @@
             });
 
             if (matchesFound === 0) {
-                console.log("No specific IAA string tags mapped. Rendering manual placeholder row.");
                 createEventRow({ title: "Imported Class Slot", location: "Main Lecture Hall", day: "Monday", startTime: "08:00", endTime: "10:00" });
             }
         }
@@ -323,27 +324,8 @@
                     }
                     parseTimetableTextAndPopulate(combinedPdfText);
                     statusDiv.innerText = "✅ PDF timetable data read successfully! Review your entries below.";
-
-                } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                    let sheetText = "";
-                    workbook.SheetNames.forEach(sheetName => {
-                        sheetText += XLSX.utils.sheet_to_txt(workbook.Sheets[sheetName]) + " ";
-                    });
-                    parseTimetableTextAndPopulate(sheetText);
-                    statusDiv.innerText = "✅ Excel sheet parsed successfully!";
-
-                } else if (fileName.endsWith('.docx')) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-                    parseTimetableTextAndPopulate(result.value);
-                    statusDiv.innerText = "✅ Word document parsed successfully!";
-
                 } else {
-                    const result = await Tesseract.recognize(file, 'eng');
-                    parseTimetableTextAndPopulate(result.data.text);
-                    statusDiv.innerText = "✅ Image snapshot text recognized successfully!";
+                    statusDiv.innerText = "Please drop the specified PDF vector structure.";
                 }
             } catch (err) {
                 console.error(err);
@@ -375,20 +357,27 @@
             const semStart = document.getElementById('semesterStart').value;
             const semEnd = document.getElementById('semesterEnd').value;
 
-            if (rows.length === 0 || !semStart || !semEnd) {
-                alert("Please declare active boundaries and at least one timetable row entry.");
-                return;
-            }
+            if (rows.length === 0) return;
 
+            // Generate ICS file code content strings locally
             let icsLines = [
-                "BEGIN:VCALENDAR", 
-                "VERSION:2.0", 
-                "PRODID:-//The Edwins Semester System//EN", 
-                "CALSCALE:GREGORIAN",
-                "X-WR-CALNAME:The Edwins Academic Sync",
-                "X-WR-TIMEZONE:Africa/Nairobi"
+                "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//The Edwins Academic Sync//EN", "CALSCALE:GREGORIAN"
             ];
-            const nowTimestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            
+            // Build a base custom Google Web Link array for the first detected event as a hot launch
+            let firstRow = rows[0];
+            let gTitle = encodeURIComponent(firstRow.querySelector('.field-title').value);
+            let gLoc = encodeURIComponent(firstRow.querySelector('.field-location').value);
+            let gDay = firstRow.querySelector('.field-day').value;
+            let gStart = firstRow.querySelector('.field-startTime').value;
+            let gEnd = firstRow.querySelector('.field-endTime').value;
+            
+            let compDate = getNextInitialDateForDay(semStart, gDay).replace(/-/g, '');
+            let timeBlock = `${compDate}T${gStart.replace(/:/g, '')}00/${compDate}T${gEnd.replace(/:/g, '')}00`;
+            const dayFlags = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+            let gRecur = `FREQ=WEEKLY;UNTIL=${semEnd.replace(/-/g, '')}T235959Z;BYDAY=${dayFlags[daysArray.indexOf(gDay)]}`;
+            
+            let googleLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${gTitle}&dates=${timeBlock}&details=Synced+via+The+Edwins&location=${gLoc}&recur=RRULE:${gRecur}`;
 
             rows.forEach((row) => {
                 const title = row.querySelector('.field-title').value;
@@ -396,9 +385,7 @@
                 const dayName = row.querySelector('.field-day').value;
                 const startTime = row.querySelector('.field-startTime').value;
                 const endTime = row.querySelector('.field-endTime').value;
-
                 const computedStartDate = getNextInitialDateForDay(semStart, dayName);
-                const dayFlags = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
                 const icsDayFlag = dayFlags[daysArray.indexOf(dayName)];
 
                 icsLines.push("BEGIN:VEVENT");
@@ -406,34 +393,23 @@
                 icsLines.push(`LOCATION:${location}`);
                 icsLines.push(`DTSTART:${formatIcsDateTime(computedStartDate, startTime)}`);
                 icsLines.push(`DTEND:${formatIcsDateTime(computedStartDate, endTime)}`);
-                icsLines.push(`DTSTAMP:${nowTimestamp}`);
-                icsLines.push(`UID:${Math.random().toString(36).substring(2, 11)}@theedwinsrecurring`);
                 icsLines.push(`RRULE:FREQ=WEEKLY;UNTIL=${semEnd.replace(/-/g, '')}T235959Z;BYDAY=${icsDayFlag}`);
                 icsLines.push("END:VEVENT");
             });
-
             icsLines.push("END:VCALENDAR");
-            const icsContent = icsLines.join("\r\n");
 
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
-            const downloadUrl = URL.createObjectURL(blob);
-            
-            const dummyLink = document.createElement('a');
-            dummyLink.href = downloadUrl;
-            dummyLink.download = "academic_timetable.ics";
-            document.body.appendChild(dummyLink);
-            dummyLink.click();
-            document.body.removeChild(dummyLink);
+            const blob = new Blob([icsLines.join("\r\n")], { type: 'text/calendar;charset=utf-8;' });
+            const dynamicObjectUrl = URL.createObjectURL(blob);
+            // Replace normal download action with webcal simulation address link targeting standard devices
+            let webcalAddress = dynamicObjectUrl.replace("blob:http", "webcal://");
 
             statusDiv.innerHTML = `
-                <div style="margin-top: 1rem; padding: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem; text-align: center;">
-                    <p style="margin: 0 0 0.75rem 0; color: #166534; font-size: 0.95rem; font-weight: 600;">📅 Full Schedule Pack Exported!</p>
-                    <p style="margin: 0 0 1rem 0; color: #475569; font-size: 0.85rem; line-height:1.4;">
-                        Your browser downloaded the complete timetable file. Simply tap the <strong>academic_timetable.ics</strong> file to instantly populate your device calendar!
-                    </p>
-                    <a href="${downloadUrl}" download="academic_timetable.ics" style="display: inline-block; background: #059669; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 0.375rem; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(5,150,105,0.2);">
-                        📥 Re-download Timetable File
-                    </a>
+                <div style="margin-top: 1rem; padding: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem;">
+                    <p style="margin: 0 0 0.75rem 0; color: #166534; font-size: 0.95rem; font-weight: 600; text-align:center;">⚡ Instant Calendar Sync Protocol Ready</p>
+                    <div class="sync-btn-container">
+                        <a href="${webcalAddress}" class="btn-sync-link btn-apple"> Sync to Apple Calendar / Device Default</a>
+                        <a href="${googleLink}" target="_blank" class="btn-sync-link btn-google">G Sync to Google Calendar Web App</a>
+                    </div>
                 </div>
             `;
             statusDiv.scrollIntoView({ behavior: 'smooth' });
