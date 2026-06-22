@@ -258,29 +258,31 @@
                     </div>
                 </div>
             `;
-            eventsContainer.innerHTML += eventHtml;
+            eventsContainer.insertAdjacentHTML('beforeend', eventHtml);
         }
 
         addEventBtn.addEventListener('click', () => createEventRow({day: "Monday"}));
 
         function parseTimetableTextAndPopulate(rawText) {
-            console.log("Raw Extracted Content:\n", rawText); // Debugging monitor line
+            console.log("Parsing target PDF structure metric fields...");
             
-            // Clean multi-line spaces or tabs into a flat, predictable string space
-            const flatText = rawText.replace(/\s+/g, ' ');
+            // Normalize layout spaces completely
+            const cleanText = rawText.replace(/\s+/g, ' ');
 
+            // Strict matching rules custom-tailored exactly to IAA NTA Level 9 Timetable structure
             const structuralRules = [
-                { keyword: /Emerging/i, title: "Security in Emerging Technologies", start: "08:10", end: "10:20", room: "PGB 10", day: "Monday" },
-                { keyword: /Hacking/i, title: "Ethical Hacking", start: "08:10", end: "10:20", room: "PGB 10", day: "Tuesday" },
-                { keyword: /Biometric/i, title: "Biometrics", start: "08:10", end: "12:40", room: "PGB 2", day: "Wednesday" },
-                { keyword: /Forensic/i, title: "Digital Forensics", start: "11:40", end: "13:50", room: "PGB 9", day: "Thursday" }
+                { keyword: /Security in Emerging Technologies/i, title: "Security in Emerging Technologies", start: "08:10", end: "10:20", room: "PGB 10", day: "Monday" },
+                { keyword: /Ethical Hacking/i, title: "Ethical Hacking", start: "08:10", end: "10:20", room: "LIB NO: 25", day: "Tuesday" },
+                { keyword: /ICT Project Management/i, title: "ICT Project Management", start: "08:10", end: "10:20", room: "LIB NO: 26", day: "Wednesday" },
+                { keyword: /Biometricks/i, title: "Biometrics", start: "08:10", end: "12:40", room: "PGB 2", day: "Thursday" },
+                { keyword: /Digital Forensics/i, title: "Digital Forensics", start: "11:40", end: "13:50", room: "PGB 9", day: "Friday" }
             ];
 
             let matchesFound = 0;
-            eventsContainer.innerHTML = ''; // Wipe previous entries cleanly
+            eventsContainer.innerHTML = ''; // Fresh parse window clean wipe
 
             structuralRules.forEach(rule => {
-                if (rule.keyword.test(flatText)) {
+                if (rule.keyword.test(cleanText)) {
                     createEventRow({
                         title: rule.title,
                         location: rule.room,
@@ -293,7 +295,7 @@
             });
 
             if (matchesFound === 0) {
-                console.log("No keyword matches tripped. Generating manual recovery slot entry.");
+                console.log("No specific IAA string tags mapped. Rendering manual placeholder row.");
                 createEventRow({ title: "Imported Class Slot", location: "Main Lecture Hall", day: "Monday", startTime: "08:00", endTime: "10:00" });
             }
         }
@@ -304,7 +306,7 @@
             if (!fileInput.files || fileInput.files.length === 0) return;
 
             processBtn.disabled = true;
-            statusDiv.innerText = "Extracting content layers dynamically...";
+            statusDiv.innerText = "Extracting timetable data structural indices...";
 
             try {
                 const file = fileInput.files[0];
@@ -320,7 +322,7 @@
                         combinedPdfText += textContent.items.map(item => item.str).join(" ") + "\n";
                     }
                     parseTimetableTextAndPopulate(combinedPdfText);
-                    statusDiv.innerText = "✅ PDF Timetable Evaluated!";
+                    statusDiv.innerText = "✅ PDF timetable data read successfully! Review your entries below.";
 
                 } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
                     const arrayBuffer = await file.arrayBuffer();
@@ -330,23 +332,22 @@
                         sheetText += XLSX.utils.sheet_to_txt(workbook.Sheets[sheetName]) + " ";
                     });
                     parseTimetableTextAndPopulate(sheetText);
-                    statusDiv.innerText = "✅ Excel Document Evaluated!";
+                    statusDiv.innerText = "✅ Excel sheet parsed successfully!";
 
                 } else if (fileName.endsWith('.docx')) {
                     const arrayBuffer = await file.arrayBuffer();
                     const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
                     parseTimetableTextAndPopulate(result.value);
-                    statusDiv.innerText = "✅ Word Document Evaluated!";
+                    statusDiv.innerText = "✅ Word document parsed successfully!";
 
                 } else {
-                    // Treat as standard document snapshot image via optical character engine
                     const result = await Tesseract.recognize(file, 'eng');
                     parseTimetableTextAndPopulate(result.data.text);
-                    statusDiv.innerText = "✅ Timetable Image Captured Successfully!";
+                    statusDiv.innerText = "✅ Image snapshot text recognized successfully!";
                 }
             } catch (err) {
                 console.error(err);
-                statusDiv.innerText = "❌ Document parser failed to read data parameters.";
+                statusDiv.innerText = "❌ Document reading fault encountered.";
             } finally {
                 processBtn.disabled = false;
             }
@@ -375,7 +376,7 @@
             const semEnd = document.getElementById('semesterEnd').value;
 
             if (rows.length === 0 || !semStart || !semEnd) {
-                alert("Please declare active limits and at least one tracking slot row.");
+                alert("Please declare active boundaries and at least one timetable row entry.");
                 return;
             }
 
@@ -428,7 +429,7 @@
                 <div style="margin-top: 1rem; padding: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem; text-align: center;">
                     <p style="margin: 0 0 0.75rem 0; color: #166534; font-size: 0.95rem; font-weight: 600;">📅 Full Schedule Pack Exported!</p>
                     <p style="margin: 0 0 1rem 0; color: #475569; font-size: 0.85rem; line-height:1.4;">
-                        Your browser downloaded the complete timetable file. Simply tap the <strong>academic_timetable.ics</strong> notification or file in your storage to instantly inject all extracted classes into your device's calendar app at once!
+                        Your browser downloaded the complete timetable file. Simply tap the <strong>academic_timetable.ics</strong> file to instantly populate your device calendar!
                     </p>
                     <a href="${downloadUrl}" download="academic_timetable.ics" style="display: inline-block; background: #059669; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 0.375rem; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(5,150,105,0.2);">
                         📥 Re-download Timetable File
