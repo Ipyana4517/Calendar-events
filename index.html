@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Edwins | Semester Smart Timetable Sync</title>
     
-    <!-- Extraction Engines (OCR, PDF, Excel, Word Parsing) -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -159,7 +158,6 @@
     </header>
 
     <main class="main-content">
-        <!-- Range Global Bounds Setup -->
         <div class="card">
             <h2>📅 Semester Boundary</h2>
             <div class="grid-2">
@@ -218,7 +216,7 @@
         const uploadForm = document.getElementById('uploadForm');
         const processBtn = document.getElementById('processBtn');
         const statusDiv = document.getElementById('status');
-        
+
         // Auto-assign default dates covering a standard academic semester block
         const currentYear = new Date().getFullYear();
         document.getElementById('semesterStart').value = `${currentYear}-01-05`;
@@ -268,7 +266,6 @@
 
         addEventBtn.addEventListener('click', () => createEventRow({day: "Monday"}));
 
-        // Document cross-parser engine mapping logic
         function parseTimetableTextAndPopulate(rawText) {
             const standardizedText = rawText.replace(/\s+/g, ' ');
             const blockRegex = /(?:Module|Subject|Class):\s*(.*?)(?=(?:Module|Subject|Class):|$)/gi;
@@ -283,7 +280,6 @@
             };
 
             if (matches.length === 0 && standardizedText.length > 20) {
-                // Fallback splitting logic if standard keyword anchors are missing inside structural documents
                 const items = standardizedText.split(/[\d]{3,}/);
                 if(items.length > 1) {
                     matches = items.map(item => [item, item]);
@@ -330,7 +326,6 @@
             }
         }
 
-        // Multiplex multi-format processing form binding
         uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const fileInput = document.getElementById('timetableFile');
@@ -377,7 +372,6 @@
                     statusDiv.innerText = "✅ Parsed Word text layout values!";
 
                 } else {
-                    // Image processing handler fallback
                     const result = await Tesseract.recognize(file, 'eng');
                     parseTimetableTextAndPopulate(result.data.text);
                     statusDiv.innerText = "✅ Scanned schedule text successfully!";
@@ -390,7 +384,6 @@
             }
         });
 
-        // Date calculating logic to link static week-day maps with absolute target calendar intervals
         function getNextInitialDateForDay(startDateStr, targetDayName) {
             const start = new Date(startDateStr);
             const targetIndex = daysArray.indexOf(targetDayName); 
@@ -407,7 +400,7 @@
             return dateStr.replace(/-/g, '') + 'T' + timeStr.replace(/:/g, '') + '00';
         }
 
-        // Unified cross-platform output processor
+        // Global Form Submit Handler 
         document.getElementById('masterEventForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const rows = document.querySelectorAll('.event-row');
@@ -419,13 +412,17 @@
                 return;
             }
 
-            let icsLines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//The Edwins Semester System//EN", "CALSCALE:GREGORIAN"];
+            let icsLines = [
+                "BEGIN:VCALENDAR", 
+                "VERSION:2.0", 
+                "PRODID:-//The Edwins Semester System//EN", 
+                "CALSCALE:GREGORIAN",
+                "X-WR-CALNAME:The Edwins Academic Sync",
+                "X-WR-TIMEZONE:Africa/Nairobi"
+            ];
             const nowTimestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-            
-            // Build the first cloud event pointer fallback token string parameters
-            let primaryCloudLink = "";
 
-            rows.forEach((row, idx) => {
+            rows.forEach((row) => {
                 const title = row.querySelector('.field-title').value;
                 const location = row.querySelector('.field-location').value;
                 const dayName = row.querySelector('.field-day').value;
@@ -445,35 +442,32 @@
                 icsLines.push(`UID:${Math.random().toString(36).substring(2, 11)}@theedwinsrecurring`);
                 icsLines.push(`RRULE:FREQ=WEEKLY;UNTIL=${semEnd.replace(/-/g, '')}T235959Z;BYDAY=${icsDayFlag}`);
                 icsLines.push("END:VEVENT");
-
-                if (idx === 0) {
-                    const gTitle = encodeURIComponent(title);
-                    const gLoc = encodeURIComponent(location);
-                    const gStart = formatIcsDateTime(computedStartDate, startTime);
-                    const gEnd = formatIcsDateTime(computedStartDate, endTime);
-                    const untilFlag = semEnd.replace(/-/g, '') + 'T235959Z';
-                    primaryCloudLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${gTitle}&dates=${gStart}/${gEnd}&recur=RRULE:FREQ=WEEKLY;UNTIL=${untilFlag};BYDAY=${icsDayFlag}&location=${gLoc}`;
-                }
             });
 
             icsLines.push("END:VCALENDAR");
             const icsContent = icsLines.join("\r\n");
 
-            // Attempt seamless system intents
-            const base64Ics = btoa(unescape(encodeURIComponent(icsContent)));
+            // Build a direct physical binary file blob to bypass the single-link browser limitation
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+            const downloadUrl = URL.createObjectURL(blob);
             
-            // Native inline browser redirection sequence context hook
-            setTimeout(() => {
-                window.location.href = "webcal://data:text/calendar;base64," + base64Ics;
-            }, 100);
+            // Generate a virtual download hook to seamlessly trigger file ingestion
+            const dummyLink = document.createElement('a');
+            dummyLink.href = downloadUrl;
+            dummyLink.download = "academic_timetable.ics";
+            document.body.appendChild(dummyLink);
+            dummyLink.click();
+            document.body.removeChild(dummyLink);
 
-            // Fallback structural rendering block configuration injection onto dashboard panel UI layout cards
+            // Output clean confirmation dashboard notice
             statusDiv.innerHTML = `
                 <div style="margin-top: 1rem; padding: 1.25rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem; text-align: center;">
-                    <p style="margin: 0 0 0.75rem 0; color: #166534; font-size: 0.95rem; font-weight: 600;">📅 Full Term Recurrence Package Compiled!</p>
-                    <p style="margin: 0 0 1rem 0; color: #475569; font-size: 0.85rem;">If your device didn't pop open its local calendar app view, use the live safe link sequence below to populate your cloud space directly in one tap:</p>
-                    <a href="${primaryCloudLink}" target="_blank" style="display: inline-block; background: #059669; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 0.375rem; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(5,150,105,0.2);">
-                        🔗 Add Semester Sequence To Calendar
+                    <p style="margin: 0 0 0.75rem 0; color: #166534; font-size: 0.95rem; font-weight: 600;">📅 Full Schedule Pack Exported!</p>
+                    <p style="margin: 0 0 1rem 0; color: #475569; font-size: 0.85rem; line-height:1.4;">
+                        Your browser downloaded the complete timetable file. Simply tap the <strong>academic_timetable.ics</strong> notification or file in your storage to instantly inject all extracted classes into your device's calendar app at once!
+                    </p>
+                    <a href="${downloadUrl}" download="academic_timetable.ics" style="display: inline-block; background: #059669; color: white; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 0.375rem; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(5,150,105,0.2);">
+                        📥 Re-download Timetable File
                     </a>
                 </div>
             `;
